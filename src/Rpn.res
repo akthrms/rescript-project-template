@@ -17,7 +17,7 @@ exception InvalidExpression(string)
 
 // Functions
 
-let stringToTokens = string =>
+let stringToTokens = string => {
   Js.String.split(" ", string)
   ->Array.map(ch =>
     switch Int.fromString(ch) {
@@ -33,6 +33,7 @@ let stringToTokens = string =>
     }
   )
   ->List.fromArray
+}
 
 let calculate = (stack, fun) => {
   switch stack {
@@ -62,6 +63,6 @@ let evaluateTokens = tokens => {
   go(tokens, list{})
 }
 
-let rpn = string => string->stringToTokens->evaluateTokens
-
-rpn("1 2 + +")->Js.log
+let rpn = string => {
+  string->stringToTokens->evaluateTokens
+}

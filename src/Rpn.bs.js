@@ -121,12 +121,10 @@ function rpn(string) {
   return evaluateTokens(stringToTokens(string));
 }
 
-console.log(evaluateTokens(stringToTokens("1 2 + +")));
-
 exports.InvalidToken = InvalidToken;
 exports.InvalidExpression = InvalidExpression;
 exports.stringToTokens = stringToTokens;
 exports.calculate = calculate;
 exports.evaluateTokens = evaluateTokens;
 exports.rpn = rpn;
-/*  Not a pure module */
+/* No side effect */
