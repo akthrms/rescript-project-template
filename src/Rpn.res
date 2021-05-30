@@ -13,7 +13,7 @@ type token =
 
 exception InvalidToken(string)
 
-exception InvalidExpression
+exception InvalidExpression(string)
 
 // Functions
 
@@ -27,7 +27,7 @@ let stringToTokens = string =>
       | "-" => Sub
       | "*" => Mul
       | "/" => Div
-      | _ => raise(InvalidToken(ch))
+      | _ => raise(InvalidToken(`invalid token: ${ch}`))
       }
     | Some(num) => Num(num)
     }
@@ -37,7 +37,7 @@ let stringToTokens = string =>
 let calculate = (stack, fun) => {
   switch stack {
   | list{right, left, ...stack} => list{fun(left, right), ...stack}
-  | _ => raise(InvalidExpression)
+  | _ => raise(InvalidExpression("invalid expression"))
   }
 }
 
@@ -47,7 +47,7 @@ let evaluateTokens = tokens => {
     | list{} =>
       switch stack {
       | list{num, ..._} => num
-      | _ => raise(InvalidExpression)
+      | _ => raise(InvalidExpression("stack is empty"))
       }
     | list{token, ...tokens} =>
       switch token {
@@ -63,3 +63,5 @@ let evaluateTokens = tokens => {
 }
 
 let rpn = string => string->stringToTokens->evaluateTokens
+
+rpn("1 2 + +")->Js.log

@@ -32,7 +32,7 @@ function stringToTokens(string) {
                       default:
                         throw {
                               RE_EXN_ID: InvalidToken,
-                              _1: ch,
+                              _1: "invalid token: " + ch,
                               Error: new Error()
                             };
                     }
@@ -50,11 +50,13 @@ function calculate(stack, fun) {
     }
     throw {
           RE_EXN_ID: InvalidExpression,
+          _1: "invalid expression",
           Error: new Error()
         };
   }
   throw {
         RE_EXN_ID: InvalidExpression,
+        _1: "invalid expression",
         Error: new Error()
       };
 }
@@ -108,6 +110,7 @@ function evaluateTokens(tokens) {
       }
       throw {
             RE_EXN_ID: InvalidExpression,
+            _1: "stack is empty",
             Error: new Error()
           };
     }
@@ -118,10 +121,12 @@ function rpn(string) {
   return evaluateTokens(stringToTokens(string));
 }
 
+console.log(evaluateTokens(stringToTokens("1 2 + +")));
+
 exports.InvalidToken = InvalidToken;
 exports.InvalidExpression = InvalidExpression;
 exports.stringToTokens = stringToTokens;
 exports.calculate = calculate;
 exports.evaluateTokens = evaluateTokens;
 exports.rpn = rpn;
-/* No side effect */
+/*  Not a pure module */
