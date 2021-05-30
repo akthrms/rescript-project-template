@@ -7,6 +7,7 @@ var Belt_List = require("rescript/lib/js/belt_List.js");
 var Belt_Array = require("rescript/lib/js/belt_Array.js");
 var Caml_int32 = require("rescript/lib/js/caml_int32.js");
 var Caml_exceptions = require("rescript/lib/js/caml_exceptions.js");
+var Caml_js_exceptions = require("rescript/lib/js/caml_js_exceptions.js");
 
 var InvalidToken = /* @__PURE__ */Caml_exceptions.create("Rpn.InvalidToken");
 
@@ -121,10 +122,68 @@ function rpn(string) {
   return evaluateTokens(stringToTokens(string));
 }
 
+if (evaluateTokens(stringToTokens("3 4 + 1 2 - *")) !== -7) {
+  throw {
+        RE_EXN_ID: "Assert_failure",
+        _1: [
+          "Rpn.res",
+          70,
+          0
+        ],
+        Error: new Error()
+      };
+}
+
+try {
+  evaluateTokens(stringToTokens("1 2 + @"));
+}
+catch (raw_message){
+  var message = Caml_js_exceptions.internalToOCamlException(raw_message);
+  if (message.RE_EXN_ID === InvalidToken) {
+    if (message._1 !== "invalid token: @") {
+      throw {
+            RE_EXN_ID: "Assert_failure",
+            _1: [
+              "Rpn.res",
+              75,
+              27
+            ],
+            Error: new Error()
+          };
+    }
+    
+  } else {
+    throw message;
+  }
+}
+
+try {
+  evaluateTokens(stringToTokens("1 2 + +"));
+}
+catch (raw_message$1){
+  var message$1 = Caml_js_exceptions.internalToOCamlException(raw_message$1);
+  if (message$1.RE_EXN_ID === InvalidExpression) {
+    if (message$1._1 !== "invalid expression") {
+      throw {
+            RE_EXN_ID: "Assert_failure",
+            _1: [
+              "Rpn.res",
+              81,
+              32
+            ],
+            Error: new Error()
+          };
+    }
+    
+  } else {
+    throw message$1;
+  }
+}
+
 exports.InvalidToken = InvalidToken;
 exports.InvalidExpression = InvalidExpression;
 exports.stringToTokens = stringToTokens;
 exports.calculate = calculate;
 exports.evaluateTokens = evaluateTokens;
 exports.rpn = rpn;
-/* No side effect */
+/*  Not a pure module */

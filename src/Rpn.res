@@ -66,3 +66,17 @@ let evaluateTokens = tokens => {
 let rpn = string => {
   string->stringToTokens->evaluateTokens
 }
+
+assert (rpn("3 4 + 1 2 - *") == -7)
+
+try {
+  let _ = rpn("1 2 + @")
+} catch {
+| InvalidToken(message) => assert (message == "invalid token: @")
+}
+
+try {
+  let _ = rpn("1 2 + +")
+} catch {
+| InvalidExpression(message) => assert (message == "invalid expression")
+}
