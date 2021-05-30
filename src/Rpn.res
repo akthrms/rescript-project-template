@@ -5,6 +5,8 @@ open Belt
 type token =
   | Add
   | Sub
+  | Mul
+  | Div
   | Num(int)
 
 // Exceptions
@@ -20,12 +22,12 @@ let stringToTokens = string =>
   ->Array.map(ch =>
     switch Int.fromString(ch) {
     | None =>
-      if ch == "+" {
-        Add
-      } else if ch == "-" {
-        Sub
-      } else {
-        raise(InvalidToken(ch))
+      switch ch {
+      | "+" => Add
+      | "-" => Sub
+      | "*" => Mul
+      | "/" => Div
+      | _ => raise(InvalidToken(ch))
       }
     | Some(num) => Num(num)
     }
@@ -51,6 +53,8 @@ let evaluateTokens = tokens => {
       switch token {
       | Add => go(tokens, calculate(stack, (l, r) => l + r))
       | Sub => go(tokens, calculate(stack, (l, r) => l - r))
+      | Mul => go(tokens, calculate(stack, (l, r) => l * r))
+      | Div => go(tokens, calculate(stack, (l, r) => l / r))
       | Num(num) => go(tokens, list{num, ...stack})
       }
     }

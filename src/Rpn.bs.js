@@ -5,6 +5,7 @@ var Curry = require("rescript/lib/js/curry.js");
 var Belt_Int = require("rescript/lib/js/belt_Int.js");
 var Belt_List = require("rescript/lib/js/belt_List.js");
 var Belt_Array = require("rescript/lib/js/belt_Array.js");
+var Caml_int32 = require("rescript/lib/js/caml_int32.js");
 var Caml_exceptions = require("rescript/lib/js/caml_exceptions.js");
 
 var InvalidToken = /* @__PURE__ */Caml_exceptions.create("Rpn.InvalidToken");
@@ -19,17 +20,22 @@ function stringToTokens(string) {
                               _0: num
                             };
                     }
-                    if (ch === "+") {
-                      return /* Add */0;
+                    switch (ch) {
+                      case "*" :
+                          return /* Mul */2;
+                      case "+" :
+                          return /* Add */0;
+                      case "-" :
+                          return /* Sub */1;
+                      case "/" :
+                          return /* Div */3;
+                      default:
+                        throw {
+                              RE_EXN_ID: InvalidToken,
+                              _1: ch,
+                              Error: new Error()
+                            };
                     }
-                    if (ch === "-") {
-                      return /* Sub */1;
-                    }
-                    throw {
-                          RE_EXN_ID: InvalidToken,
-                          _1: ch,
-                          Error: new Error()
-                        };
                   })));
 }
 
@@ -63,33 +69,48 @@ function evaluateTokens(tokens) {
       var tokens$2 = tokens$1.tl;
       var token = tokens$1.hd;
       if (typeof token === "number") {
-        if (token !== 0) {
-          _stack = calculate(stack, (function (l, r) {
-                  return l - r | 0;
-                }));
-          _tokens = tokens$2;
-          continue ;
+        switch (token) {
+          case /* Add */0 :
+              _stack = calculate(stack, (function (l, r) {
+                      return l + r | 0;
+                    }));
+              _tokens = tokens$2;
+              continue ;
+          case /* Sub */1 :
+              _stack = calculate(stack, (function (l, r) {
+                      return l - r | 0;
+                    }));
+              _tokens = tokens$2;
+              continue ;
+          case /* Mul */2 :
+              _stack = calculate(stack, (function (l, r) {
+                      return Math.imul(l, r);
+                    }));
+              _tokens = tokens$2;
+              continue ;
+          case /* Div */3 :
+              _stack = calculate(stack, Caml_int32.div);
+              _tokens = tokens$2;
+              continue ;
+          
         }
-        _stack = calculate(stack, (function (l, r) {
-                return l + r | 0;
-              }));
+      } else {
+        _stack = {
+          hd: token._0,
+          tl: stack
+        };
         _tokens = tokens$2;
         continue ;
       }
-      _stack = {
-        hd: token._0,
-        tl: stack
-      };
-      _tokens = tokens$2;
-      continue ;
+    } else {
+      if (stack) {
+        return stack.hd;
+      }
+      throw {
+            RE_EXN_ID: InvalidExpression,
+            Error: new Error()
+          };
     }
-    if (stack) {
-      return stack.hd;
-    }
-    throw {
-          RE_EXN_ID: InvalidExpression,
-          Error: new Error()
-        };
   };
 }
 
